@@ -1,19 +1,18 @@
 import api from "@/lib/axios";
 import { isAxiosError } from "axios";
 import {
-  type TaskFormData,
+  dashboardTaskSchema,
+  type Project,
   type ResponseDTO,
   type Task,
-  type Project,
-  dashboardTaskSchema,
-  taskSchema,
+  type TaskFormData,
   type TaskStatus,
 } from "../types";
 
 type TaskAPIType = {
   projectId: Project["_id"];
-  taskId?: Task["_id"];
-  formData?: TaskFormData;
+  taskId: Task["_id"];
+  formData: TaskFormData;
   taskStatus?: TaskStatus;
 };
 
@@ -56,8 +55,13 @@ export async function getTaskById({
 }: Pick<TaskAPIType, "taskId" | "projectId">) {
   try {
     const { data } = await api(`/projects/${projectId}/task/${taskId}`);
-    const response = taskSchema.safeParse(data);
-    if (response.success) return response.data;
+    return data;
+    /* const response = taskSchema.safeParse(data);
+    if (response.success) {
+      return response.data;
+    } else {
+      throw new Error("Error al obtener la tarea. Datos no válidos.");
+    } */
   } catch (error) {
     if (isAxiosError(error) && error.response) {
       throw new Error(error.response.data.error);

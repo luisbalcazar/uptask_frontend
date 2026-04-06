@@ -43,6 +43,8 @@ export async function getProjectById(id: Project["_id"]) {
     const response = projectSchema.safeParse(data);
     if (response.success) {
       return response.data;
+    } else {
+      throw new Error("Error al obtener el proyecto. Datos no válidos.");
     }
   } catch (error) {
     if (isAxiosError(error) && error.response) {
