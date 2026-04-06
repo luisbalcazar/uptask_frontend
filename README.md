@@ -16,9 +16,12 @@ Web application for project managing, allowing users to create, edit, and manage
 ## Project Structure
 
 ```
-/src → Application source code (components, layouts)
-/store → Global state management (Zustand)
-/types → Different customed object types
+/src → Application source code (components, views)
+/layouts → Application main layout
+/store → State management (React Query)
+/types → Different customed object types schemas (Zod)
+/lib → API request config (Axios)
+/services → CRUD funtionality integration (Axios, Schemas)
 ```
 
 ## Installation & Setup
