@@ -1,6 +1,7 @@
 import AddTaskModal from "@/components/tasks/AddTaskModal";
 import EditTaskData from "@/components/tasks/EditTaskData";
 import { TaskList } from "@/components/tasks/TaskList";
+import TaskModalDetails from "@/components/tasks/TaskModalDetails";
 import { getProjectById } from "@/services/ProjectAPI";
 import type { Task } from "@/types/index";
 import { useQuery } from "@tanstack/react-query";
@@ -39,6 +40,7 @@ export const ProjectDetailsView = () => {
         <TaskList tasks={data.tasks as Task[]} />
         <AddTaskModal />
         <EditTaskData />
+        <TaskModalDetails />
       </>
     );
 

@@ -19,8 +19,10 @@ export const taskSchema = z.object({
   _id: z.string(),
   name: z.string(),
   description: z.string(),
-  project: z.string(),
+  project: z.union([z.string(), z.object()]),
   status: taskStatusSchema,
+  createdAt: z.string(),
+  updatedAt: z.string(),
 });
 
 export const dashboardTaskSchema = z.array(
