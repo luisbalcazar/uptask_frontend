@@ -12,20 +12,56 @@ import {
   useNavigate,
   useParams,
 } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { getTaskById } from "@/services/TaskAPI";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { getTaskById, updateTaskStatus } from "@/services/TaskAPI";
 import { toast } from "react-toastify";
+import { formatDate } from "@/utils/index";
+import { statusTranslations } from "@/locales/es";
+import type { TaskStatus } from "@/types/index";
 
 export default function TaskModalDetails() {
+  const navigate = useNavigate();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const taskId = queryParams.get("viewTask")!;
-  const navigate = useNavigate();
+  const show = taskId ? true : false;
 
   const params = useParams();
   const projectId = params.projectId!;
 
-  const show = taskId ? true : false;
+  const queryClient = useQueryClient();
+
+  const { mutate } = useMutation({
+    mutationFn: updateTaskStatus,
+    onError: (error) => {
+      console.log(error);
+      toast.error("Ha ocurrido un error al actualizar el estado de la tarea");
+    },
+    onSuccess: (response) => {
+      queryClient.invalidateQueries({
+        queryKey: ["task", taskId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["project", projectId],
+      });
+
+      if (response) {
+        toast.success(response.msg);
+        //reset();
+      }
+      navigate(location.pathname, { replace: true });
+    },
+  });
+
+  const handleChangeStatus = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const status = e.target.value as TaskStatus;
+    const data = {
+      status,
+      projectId,
+      taskId,
+    };
+    mutate(data);
+  };
 
   const { data, error, isError, isLoading } = useQuery({
     queryKey: ["task", taskId],
@@ -74,10 +110,10 @@ export default function TaskModalDetails() {
                 >
                   <DialogPanel className="w-full max-w-4xl transform overflow-hidden rounded-2xl bg-white text-left align-middle shadow-xl transition-all p-16">
                     <p className="text-sm text-slate-400">
-                      Agregada el: {data.createdAt}
+                      Agregada el: {formatDate(data.createdAt)}
                     </p>
                     <p className="text-sm text-slate-400">
-                      Última actualización:{" "}
+                      Última actualización: {formatDate(data.updatedAt)}
                     </p>
                     <DialogTitle
                       as="h3"
@@ -90,7 +126,22 @@ export default function TaskModalDetails() {
                     </p>
                     <div className="my-5 space-y-3">
                       <label className="font-bold">
-                        Estado Actual: {data.status}
+                        Estado Actual:
+                        <select
+                          className="w-full p-3 bg-white border border-gray-300"
+                          name="status"
+                          id="status"
+                          defaultValue={data.status}
+                          onChange={handleChangeStatus}
+                        >
+                          {Object.entries(statusTranslations).map(
+                            ([key, value]) => (
+                              <option key={key} value={key}>
+                                {value}
+                              </option>
+                            ),
+                          )}
+                        </select>
                       </label>
                     </div>
                   </DialogPanel>

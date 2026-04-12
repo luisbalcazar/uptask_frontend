@@ -50,6 +50,10 @@ export default function EditTaskModal({ task }: EditTaskModalProps) {
         queryKey: ["project", params.projectId!],
       });
 
+      queryClient.invalidateQueries({
+        queryKey: ["editTask", taskId],
+      });
+
       if (response) {
         toast.success(response.msg);
         reset();
