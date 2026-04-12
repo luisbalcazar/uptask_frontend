@@ -1,12 +1,30 @@
 import z from "zod";
 
+/* GENERIC DTO */
 export type ResponseDTO = {
   msg: string;
   code: number;
 };
 
-/* TASKS */
+/* AUTH & USER */
+export const authSchema = z.object({
+  name: z.string(),
+  email: z.email(),
+  password: z.string(),
+  password_confirmation: z.string(),
+  token: z.string(),
+});
 
+type Auth = z.infer<typeof authSchema>;
+export type UserLoginForm = Pick<Auth, "email" | "password">;
+export type UserRegistrationForm = Pick<
+  Auth,
+  "name" | "email" | "password" | "password_confirmation"
+>;
+export type ConfirmToken = Pick<Auth, "token">;
+export type RequestConfirmationCodeForm = Pick<Auth, "email">;
+
+/* TASKS */
 export const taskStatusSchema = z.enum([
   "pending",
   "onHold",
@@ -36,7 +54,7 @@ export const dashboardTaskSchema = z.array(
 );
 
 export type Task = z.infer<typeof taskSchema>;
-export type TaskStatus = Pick<Task, "status">;
+export type TaskStatus = z.infer<typeof taskStatusSchema>;
 export type TaskFormData = Pick<Task, "name" | "description">;
 
 /* PROJECTS */

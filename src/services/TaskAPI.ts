@@ -14,7 +14,7 @@ type TaskAPIType = {
   projectId: Project["_id"];
   taskId: Task["_id"];
   formData: TaskFormData;
-  taskStatus?: TaskStatus;
+  status?: TaskStatus;
 };
 
 export async function createTask({
@@ -95,18 +95,17 @@ export async function updateTask({
 export async function updateTaskStatus({
   projectId,
   taskId,
-  taskStatus,
-}: Pick<TaskAPIType, "taskStatus" | "projectId" | "taskId">) {
+  status,
+}: Pick<TaskAPIType, "status" | "projectId" | "taskId">) {
   try {
-    const { data, status } = await api.patch(
-      `/projects/${projectId}/task/${taskId}`,
-      taskStatus,
-    );
+    const { data } = await api.patch(`/projects/${projectId}/task/${taskId}`, {
+      status,
+    });
     const response: ResponseDTO = {
       msg: data,
-      code: status,
+      code: 200,
     };
-    if (status === 200) return response;
+    if (response.code === 200) return response;
   } catch (error) {
     if (isAxiosError(error) && error.response) {
       throw new Error(error.response.data.error);
