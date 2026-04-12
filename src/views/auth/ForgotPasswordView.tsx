@@ -1,106 +1,94 @@
 import ErrorMessage from "@/components/ErrorMessage";
-import { login } from "@/services/AuthAPI";
-import type { UserLoginForm } from "@/types/index";
+import { forgotPassword } from "@/services/AuthAPI";
 import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
+import type { ForgotPasswordForm } from "../../types";
 
-export default function LoginView() {
-  const navigate = useNavigate();
-  const initialValues: UserLoginForm = {
+export default function ForgotPasswordView() {
+  const initialValues: ForgotPasswordForm = {
     email: "",
-    password: "",
   };
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm({ defaultValues: initialValues });
 
   const { mutate } = useMutation({
-    mutationFn: login,
+    mutationFn: forgotPassword,
     onError: (error) => {
       toast.error(error.message);
     },
     onSuccess: (response) => {
       if (response) {
         toast.success(response.msg);
-        navigate("/");
+        reset();
       }
     },
   });
 
-  const handleLogin = (loginFormData: UserLoginForm) =>
-    mutate({ loginFormData });
+  const handleForgotPassword = (formData: ForgotPasswordForm) =>
+    mutate({ forgotPasswordForm: formData });
 
   return (
     <>
-      <h1 className="text-5xl font-black text-white">Iniciar Sesión</h1>
+      <h1 className="text-5xl font-black text-white">Reestablecer Password</h1>
       <p className="text-2xl font-light text-white mt-5">
-        Comienza a planificar tus proyectos iniciando sesión {""}
-        <span className=" text-fuchsia-500 font-bold"> en este formulario</span>
+        ¿Olvidaste tu password? Coloca tu email para {""}
+        <span className=" text-fuchsia-500 font-bold">
+          {" "}
+          reestablecer tu password
+        </span>
       </p>
 
       <form
-        onSubmit={handleSubmit(handleLogin)}
+        onSubmit={handleSubmit(handleForgotPassword)}
         className="space-y-8 p-10 mt-10 bg-white"
         noValidate
       >
         <div className="flex flex-col gap-5">
-          <label className="font-normal text-2xl">Email</label>
-
+          <label className="font-normal text-2xl" htmlFor="email">
+            Email
+          </label>
           <input
             id="email"
             type="email"
             placeholder="Email de Registro"
             className="w-full p-3  border-gray-300 border"
             {...register("email", {
-              required: "El Email es obligatorio",
+              required: "El Email de registro es obligatorio",
               pattern: {
                 value: /\S+@\S+\.\S+/,
                 message: "E-mail no válido",
               },
             })}
-          />
+          />{" "}
+          {/* Buscar deshabilitar por 10m */}
           {errors.email && <ErrorMessage>{errors.email.message}</ErrorMessage>}
-        </div>
-
-        <div className="flex flex-col gap-5">
-          <label className="font-normal text-2xl">Password</label>
-
-          <input
-            type="password"
-            placeholder="Password de Registro"
-            className="w-full p-3  border-gray-300 border"
-            {...register("password", {
-              required: "El Password es obligatorio",
-            })}
-          />
-          {errors.password && (
-            <ErrorMessage>{errors.password.message}</ErrorMessage>
-          )}
         </div>
 
         <input
           type="submit"
-          value="Iniciar Sesión"
+          value="Enviar Instrucciones"
           className="bg-fuchsia-600 hover:bg-fuchsia-700 w-full p-3  text-white font-black  text-xl cursor-pointer"
         />
       </form>
 
       <nav className="mt-10 flex flex-col space-y-4">
         <span className="text-center text-gray-300 font-normal">
-          ¿No tienes cuenta?{" "}
-          <Link className="text-fuchsia-600" to={"/auth/register"}>
-            Registrarse
+          ¿Ya tienes cuenta?{" "}
+          <Link className="text-fuchsia-600" to={"/auth/login"}>
+            Iniciar Sesión
           </Link>
         </span>
 
         <span className="text-center text-gray-300 font-normal">
-          ¿Olvidaste tu contraseña?{" "}
-          <Link className="text-fuchsia-600" to={"/auth/forgot-password"}>
-            Reestablecer
+          ¿No tienes cuenta?{" "}
+          <Link className="text-fuchsia-600" to={"/auth/register"}>
+            Registrarse
           </Link>
         </span>
       </nav>

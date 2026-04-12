@@ -5,6 +5,8 @@ import type {
   ResponseDTO,
   UserLoginForm,
   UserRegistrationForm,
+  ForgotPasswordForm,
+  NewPasswordForm,
 } from "../types";
 import { isAxiosError } from "axios";
 
@@ -12,7 +14,9 @@ type AuthAPITypes = {
   loginFormData: UserLoginForm;
   registerFormData: UserRegistrationForm;
   token: ConfirmToken["token"];
-  email: RequestConfirmationCodeForm["email"];
+  requestConfirmationCodeForm: RequestConfirmationCodeForm["email"];
+  forgotPasswordForm: ForgotPasswordForm;
+  newPasswordForm: NewPasswordForm;
 };
 
 export async function createAccount({
@@ -51,8 +55,8 @@ export async function confirmAccount({ token }: Pick<AuthAPITypes, "token">) {
 }
 
 export async function requestConfirmationCode({
-  email,
-}: Pick<AuthAPITypes, "email">) {
+  requestConfirmationCodeForm: email,
+}: Pick<AuthAPITypes, "requestConfirmationCodeForm">) {
   try {
     const { data, status } = await api.post(`/auth/request-code`, { email });
     const response: ResponseDTO = {
@@ -72,6 +76,66 @@ export async function login({
 }: Pick<AuthAPITypes, "loginFormData">) {
   try {
     const { data, status } = await api.post(`/auth/login`, loginFormData);
+    const response: ResponseDTO = {
+      msg: data,
+      code: status,
+    };
+    return response;
+  } catch (error) {
+    if (isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.error);
+    }
+  }
+}
+
+export async function forgotPassword({
+  forgotPasswordForm,
+}: Pick<AuthAPITypes, "forgotPasswordForm">) {
+  try {
+    const { data, status } = await api.post(
+      `/auth/forgot-password`,
+      forgotPasswordForm,
+    );
+    const response: ResponseDTO = {
+      msg: data,
+      code: status,
+    };
+    return response;
+  } catch (error) {
+    if (isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.error);
+    }
+  }
+}
+
+export async function validateToken({ token }: Pick<AuthAPITypes, "token">) {
+  try {
+    const { data, status } = await api.post(`/auth/validate-token`, { token });
+    const response: ResponseDTO = {
+      msg: data,
+      code: status,
+    };
+    return response;
+  } catch (error) {
+    if (isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.error);
+    }
+  }
+}
+
+export async function updatePassword({
+  newPasswordForm,
+  token,
+}: {
+  newPasswordForm: NewPasswordForm;
+  token: ConfirmToken["token"];
+}) {
+  try {
+    console.log(token);
+    const { data, status } = await api.patch(
+      `/auth/update-password/${token}`,
+      newPasswordForm,
+    );
     const response: ResponseDTO = {
       msg: data,
       code: status,
