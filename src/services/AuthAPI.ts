@@ -80,6 +80,11 @@ export async function login({
       msg: data,
       code: status,
     };
+
+    if (data) {
+      localStorage.setItem("AUTH_TOKEN", data);
+    }
+
     return response;
   } catch (error) {
     if (isAxiosError(error) && error.response) {
